@@ -53,7 +53,7 @@ export function Toolbar({ onFormat, onTogglePreview, onToggleTheme, previewMode 
         variant="ghost"
         size="sm"
         onClick={onToggleTheme}
-        title="Toggle Theme"
+        aria-label="toggle theme"
       >
         <Sun className="h-4 w-4 dark:hidden" />
         <Moon className="h-4 w-4 hidden dark:block" />

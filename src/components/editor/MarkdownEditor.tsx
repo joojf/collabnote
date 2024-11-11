@@ -7,16 +7,48 @@ import { cn } from "@/lib/utils";
 import { Toolbar } from "./Toolbar";
 import { Preview } from "./Preview";
 import { useMarkdownShortcuts } from "@/hooks/useMarkdownShortcuts";
+import { api } from "@/trpc/react";
+import { Button } from "../ui/button";
+import { Save } from "lucide-react";
+import { Input } from "../ui/input";
 
 interface MarkdownEditorProps {
     initialValue?: string;
+    documentId?: string;
     onChange?: (value: string) => void;
 }
 
-export function MarkdownEditor({ initialValue = "", onChange }: MarkdownEditorProps) {
+export function MarkdownEditor({ initialValue = "", documentId, onChange }: MarkdownEditorProps) {
     const [content, setContent] = useState(initialValue);
+    const [title, setTitle] = useState("Untitled Document");
     const [isPreviewMode, setIsPreviewMode] = useState<'edit' | 'preview' | 'split'>('edit');
     const { theme, setTheme } = useTheme();
+    const [isSaving, setIsSaving] = useState(false);
+
+    const createDocument = api.document.create.useMutation();
+    const updateDocument = api.document.update.useMutation();
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            if (documentId) {
+                await updateDocument.mutateAsync({
+                    id: documentId,
+                    title,
+                    content,
+                });
+            } else {
+                const doc = await createDocument.mutateAsync({
+                    title,
+                    content,
+                    isPublic: false,
+                });
+                // You might want to redirect to the document page here
+            }
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const handleChange = useCallback((value: string) => {
         setContent(value);
@@ -122,6 +154,25 @@ export function MarkdownEditor({ initialValue = "", onChange }: MarkdownEditorPr
 
     return (
         <div className="h-full flex flex-col">
+            <div className="flex items-center gap-2 p-2 border-b">
+                <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="text-lg font-semibold bg-transparent border-none"
+                    placeholder="Untitled Document"
+                />
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    aria-label="save"
+                >
+                    <Save className="h-4 w-4 mr-2" />
+                    {isSaving ? "Saving..." : "Save"}
+                </Button>
+            </div>
+            
             <Toolbar
                 onFormat={insertFormat}
                 onTogglePreview={togglePreview}
