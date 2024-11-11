@@ -4,6 +4,7 @@ export interface Document {
   _id: ObjectId;
   title: string;
   content: string;
+  folderId?: ObjectId;
   createdAt: Date;
   updatedAt: Date;
   ownerId: ObjectId;
@@ -19,4 +20,17 @@ export interface Document {
     version: number;
     wordCount: number;
   };
+}
+
+export interface Folder {
+  _id: ObjectId;
+  name: string;
+  parentId?: ObjectId;
+  ownerId: ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+  collaborators: Array<{
+    userId: ObjectId;
+    role: "viewer" | "editor" | "admin";
+  }>;
 }

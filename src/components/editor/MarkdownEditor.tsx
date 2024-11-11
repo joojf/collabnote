@@ -25,8 +25,19 @@ export function MarkdownEditor({ initialValue = "", documentId, onChange }: Mark
     const { theme, setTheme } = useTheme();
     const [isSaving, setIsSaving] = useState(false);
 
-    const createDocument = api.document.create.useMutation();
-    const updateDocument = api.document.update.useMutation();
+    const createDocument = api.document.create.useMutation({
+        onSuccess: () => {
+            utils.document.getFolderContents.invalidate();
+        }
+    });
+    const updateDocument = api.document.update.useMutation({
+        onSuccess: () => {
+            utils.document.getFolderContents.invalidate();
+        }
+    });
+
+    // Get the utils for invalidating queries
+    const utils = api.useUtils();
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -163,7 +174,7 @@ export function MarkdownEditor({ initialValue = "", documentId, onChange }: Mark
                 />
                 <Button
                     variant="outline"
-                    size="sm"
+                    size="lg"
                     onClick={handleSave}
                     disabled={isSaving}
                     aria-label="save"
