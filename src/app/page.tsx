@@ -1,8 +1,8 @@
 import { auth } from "@/server/auth";
 import { redirect } from "next/navigation";
-import { MarkdownEditor } from "@/components/editor/MarkdownEditor";
-import { SignOutButton } from "@/components/auth/SignOutButton";
-import { DocumentList } from "@/components/documents/DocumentList";
+import { MarkdownEditor } from "@/components/editor/markdown-editor";
+import { SignOutButton } from "@/components/auth/sign-out-button";
+import { DocumentList } from "@/components/documents/document-list";
 
 export default async function Home() {
   const session = await auth();

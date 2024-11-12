@@ -1,4 +1,4 @@
-import { DocumentViewer } from "@/components/documents/DocumentViewer";
+import { DocumentViewer } from "@/components/documents/document-viewer";
 import { auth } from "@/server/auth";
 import { redirect } from "next/navigation";
 

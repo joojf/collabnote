@@ -1,6 +1,8 @@
+"use client";
+
 import { useRouter } from "next/navigation";
 import { api } from "@/trpc/react";
-import { MarkdownEditor } from "../editor/MarkdownEditor";
+import { MarkdownEditor } from "../editor/markdown-editor";
 import { Button } from "../ui/button";
 import { ChevronLeft } from "lucide-react";
 

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
   const authCookie = request.cookies.get('next-auth.session-token') || 
                     request.cookies.get('__Secure-next-auth.session-token');
@@ -12,7 +11,6 @@ export function middleware(request: NextRequest) {
   const isPublicRoute = request.nextUrl.pathname === '/';
   const isDocumentRoute = request.nextUrl.pathname.startsWith('/documents/');
 
-  // Allow document routes if authenticated
   if (isDocumentRoute && isAuth) {
     return NextResponse.next();
   }

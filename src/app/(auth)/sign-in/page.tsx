@@ -1,4 +1,4 @@
-import { SignInForm } from "@/components/auth/SignInForm";
+import { SignInForm } from "@/components/auth/sign-in-form";
 import { auth } from "@/server/auth";
 import { redirect } from "next/navigation";
 
