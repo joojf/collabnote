@@ -10,6 +10,12 @@ export function middleware(request: NextRequest) {
   const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
   const isApiRoute = request.nextUrl.pathname.startsWith('/api');
   const isPublicRoute = request.nextUrl.pathname === '/';
+  const isDocumentRoute = request.nextUrl.pathname.startsWith('/documents/');
+
+  // Allow document routes if authenticated
+  if (isDocumentRoute && isAuth) {
+    return NextResponse.next();
+  }
 
   if (isAuthPage) {
     if (isAuth) {

@@ -11,19 +11,24 @@ import { api } from "@/trpc/react";
 import { Button } from "../ui/button";
 import { Save } from "lucide-react";
 import { Input } from "../ui/input";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/useToast";
 
 interface MarkdownEditorProps {
     initialValue?: string;
+    initialTitle?: string;
     documentId?: string;
     onChange?: (value: string) => void;
 }
 
-export function MarkdownEditor({ initialValue = "", documentId, onChange }: MarkdownEditorProps) {
+export function MarkdownEditor({ initialValue = "", initialTitle, documentId, onChange }: MarkdownEditorProps) {
     const [content, setContent] = useState(initialValue);
-    const [title, setTitle] = useState("Untitled Document");
+    const [title, setTitle] = useState(initialTitle || "Untitled Document");
     const [isPreviewMode, setIsPreviewMode] = useState<'edit' | 'preview' | 'split'>('edit');
     const { theme, setTheme } = useTheme();
     const [isSaving, setIsSaving] = useState(false);
+    const router = useRouter();
+    const { toast } = useToast();
 
     const createDocument = api.document.create.useMutation({
         onSuccess: () => {
@@ -40,6 +45,16 @@ export function MarkdownEditor({ initialValue = "", documentId, onChange }: Mark
     const utils = api.useUtils();
 
     const handleSave = async () => {
+        // Prevent saving if title or content is empty
+        if (!title.trim() || !content.trim()) {
+            toast({
+                title: "Error",
+                description: "Title and content cannot be empty",
+                variant: "destructive",
+            });
+            return;
+        }
+
         setIsSaving(true);
         try {
             if (documentId) {
@@ -48,14 +63,28 @@ export function MarkdownEditor({ initialValue = "", documentId, onChange }: Mark
                     title,
                     content,
                 });
+                toast({
+                    title: "Success",
+                    description: "Document saved successfully",
+                });
             } else {
                 const doc = await createDocument.mutateAsync({
                     title,
                     content,
                     isPublic: false,
                 });
-                // You might want to redirect to the document page here
+                router.push(`/documents/${doc._id}`);
+                toast({
+                    title: "Success",
+                    description: "Document created successfully",
+                });
             }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to save document",
+                variant: "destructive",
+            });
         } finally {
             setIsSaving(false);
         }
@@ -174,7 +203,7 @@ export function MarkdownEditor({ initialValue = "", documentId, onChange }: Mark
                 />
                 <Button
                     variant="outline"
-                    size="lg"
+                    size="sm"
                     onClick={handleSave}
                     disabled={isSaving}
                     aria-label="save"

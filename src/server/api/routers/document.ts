@@ -7,7 +7,9 @@ import {
   updateDocument,
   findDocumentsByFolderId,
   createFolder,
-  getFolderStructure
+  getFolderStructure,
+  getDocumentById,
+  deleteDocument,
 } from "@/lib/db/documents";
 
 export const documentRouter = createTRPCRouter({
@@ -100,5 +102,33 @@ export const documentRouter = createTRPCRouter({
         },
       });
       return document;
+    }),
+
+  getById: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+    }))
+    .query(async ({ input, ctx }) => {
+      const document = await getDocumentById(new ObjectId(input.id));
+      return document;
+    }),
+
+  delete: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const document = await getDocumentById(new ObjectId(input.id));
+
+      if (!document) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      if (document.ownerId.toString() !== ctx.session.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+
+      await deleteDocument(new ObjectId(input.id));
+      return { success: true };
     }),
 }); 

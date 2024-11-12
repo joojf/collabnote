@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { TRPCReactProvider } from "@/trpc/react";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "CollabNote",
@@ -19,6 +20,7 @@ export default function RootLayout({
         <TRPCReactProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
+            <Toaster />
           </ThemeProvider>
         </TRPCReactProvider>
       </body>

@@ -3,11 +3,40 @@
 import { useState } from 'react';
 import { api } from '@/trpc/react';
 import { Button } from '@/components/ui/button';
-import { File, Folder, ChevronRight, ChevronDown } from 'lucide-react';
+import { File, Folder, ChevronRight, ChevronDown, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/hooks/useToast';
 
 export function DocumentList() {
     const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+    const { toast } = useToast();
+    const utils = api.useUtils();
+
+    const deleteDocument = api.document.delete.useMutation({
+        onSuccess: () => {
+            utils.document.getFolderContents.invalidate();
+            toast({
+                title: "Success",
+                description: "Document deleted successfully",
+            });
+        },
+        onError: () => {
+            toast({
+                title: "Error",
+                description: "Failed to delete document",
+                variant: "destructive",
+            });
+        },
+    });
+
+    const handleDelete = async (documentId: string, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (window.confirm("Are you sure you want to delete this document?")) {
+            await deleteDocument.mutate({ id: documentId });
+        }
+    };
 
     const { data: documents, isLoading } = api.document.getFolderContents.useQuery({
         folderId: undefined,
@@ -67,10 +96,18 @@ export function DocumentList() {
         <Link
             href={`/documents/${doc._id.toString()}`}
             key={doc._id.toString()}
-            className="flex items-center p-2 hover:bg-secondary rounded-lg"
+            className="flex items-center p-2 hover:bg-secondary rounded-lg group"
         >
             <File className="h-4 w-4 mr-2" />
-            <span>{doc.title}</span>
+            <span className="flex-1">{doc.title}</span>
+            <Button
+                variant="ghost"
+                size="sm"
+                className="opacity-0 group-hover:opacity-100"
+                onClick={(e) => handleDelete(doc._id.toString(), e)}
+            >
+                <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
         </Link>
     );
 
